@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Wellbeing — ML Demo</title>
+    <meta name="description"
+          content="An educational machine-learning demonstration. Not a clinical or mental-health assessment.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <div class="background-blobs" aria-hidden="true">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <main class="container" id="main">
+
+        <header class="header">
+            <h1>Student Wellbeing <span class="highlight">ML Demo</span></h1>
+            <p class="subtitle">
+                A demonstration of a hybrid machine-learning classifier:
+                numeric inputs combined with a reflection entry.
+            </p>
+        </header>
+
+        <div class="glass-panel">
+
+            <!-- ============================ INPUT ============================ -->
+            <section class="input-section" aria-labelledby="form-heading">
+                <h2 id="form-heading">Your details</h2>
+                <p class="section-lede">
+                    Everything here is optional to interpret and safe to
+                    experiment with — it is a teaching demo, not an
+                    assessment.
+                </p>
+
+                <!-- Live validation feedback target -->
+                <div id="formStatus" class="form-status" role="status" aria-live="polite"></div>
+
+                <form id="predictionForm" novalidate>
+
+                    <fieldset class="form-group">
+                        <legend>Academic</legend>
+                        <p class="group-hint">How your coursework is going.</p>
+
+                        <div class="field">
+                            <label for="marks">Marks</label>
+                            <div class="slider-row">
+                                <input type="range" id="marks" name="marks"
+                                       min="0" max="100" step="1" value="75"
+                                       aria-describedby="marks-value marks-help">
+                                <output id="marks-value" for="marks">75%</output>
+                            </div>
+                            <p class="help" id="marks-help">Range 0–100.</p>
+                        </div>
+
+                        <div class="field">
+                            <label for="attendance">Attendance</label>
+                            <div class="slider-row">
+                                <input type="range" id="attendance" name="attendance"
+                                       min="0" max="100" step="1" value="80"
+                                       aria-describedby="attendance-value attendance-help">
+                                <output id="attendance-value" for="attendance">80%</output>
+                            </div>
+                            <p class="help" id="attendance-help">Range 0–100.</p>
+                        </div>
+
+                        <div class="field">
+                            <label for="assignment_delay">Assignment delay</label>
+                            <div class="slider-row">
+                                <input type="range" id="assignment_delay" name="assignment_delay"
+                                       min="0" max="30" step="1" value="0"
+                                       aria-describedby="assignment_delay-value assignment_delay-help">
+                                <output id="assignment_delay-value" for="assignment_delay">0 days</output>
+                            </div>
+                            <p class="help" id="assignment_delay-help">
+                                Days an assignment is overdue. Range 0–30.
+                            </p>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="form-group">
+                        <legend>Lifestyle</legend>
+                        <p class="group-hint">Typical daily figures.</p>
+
+                        <div class="field">
+                            <label for="sleep_hours">Sleep</label>
+                            <div class="slider-row">
+                                <input type="range" id="sleep_hours" name="sleep_hours"
+                                       min="0" max="24" step="0.5" value="7"
+                                       aria-describedby="sleep_hours-value sleep_hours-help">
+                                <output id="sleep_hours-value" for="sleep_hours">7 h</output>
+                            </div>
+                            <p class="help" id="sleep_hours-help">Hours of sleep per night. Range 0–24.</p>
+                        </div>
+
+                        <div class="field">
+                            <label for="screen_time">Screen time</label>
+                            <div class="slider-row">
+                                <input type="range" id="screen_time" name="screen_time"
+                                       min="0" max="24" step="0.5" value="5"
+                                       aria-describedby="screen_time-value screen_time-help">
+                                <output id="screen_time-value" for="screen_time">5 h</output>
+                            </div>
+                            <p class="help" id="screen_time-help">Hours of screen time per day. Range 0–24.</p>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="form-group">
+                        <legend>Reflection</legend>
+                        <p class="group-hint">A sentence or two in your own words.</p>
+
+                        <div class="field">
+                            <label for="feedback">How are you feeling?</label>
+                            <textarea id="feedback" name="feedback" rows="4"
+                                      maxlength="2000"
+                                      aria-describedby="feedback-help"
+                                      placeholder="For example: sleeping badly and worried about deadlines."></textarea>
+                            <p class="help" id="feedback-help">
+                                Between 1 and 2000 characters. This demo needs text
+                                to run — it never sends an empty entry to the model.
+                            </p>
+                            <p class="help char-count"><span id="charCount">0</span> / 2000</p>
+                        </div>
+                    </fieldset>
+
+                    <button type="submit" class="btn-primary" id="submitBtn">
+                        <span class="btn-text">Run the demo</span>
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                    </button>
+                    <p class="btn-note">
+                        Ready when you are — nothing is stored.
+                    </p>
+                </form>
+            </section>
+
+            <!-- ============================ RESULT =========================== -->
+            <section id="resultSection" class="result-section" hidden
+                     aria-labelledby="result-heading">
+
+                <div class="result-header">
+                    <div>
+                        <h2 id="result-heading">Your demo result</h2>
+                        <p class="result-disclaimer-inline">{{ disclaimer }}</p>
+                    </div>
+                    <div id="riskBadge" class="risk-badge risk-pending">
+                        <span class="risk-badge-label">Result</span>
+                        <span class="risk-badge-value" id="riskBadgeValue">—</span>
+                    </div>
+                </div>
+
+                <!-- Non-diagnostic support callout, always present -->
+                <div id="supportPanel" class="support-panel">
+                    <h3 id="supportHeading">If you need support</h3>
+                    <p id="supportBody" class="support-body">
+                        This demonstration cannot assess your wellbeing.
+                        If something feels difficult, support is available.
+                    </p>
+                    <ul class="support-list">
+                        {% for line in support_lines %}
+                        <li>{{ line }}</li>
+                        {% endfor %}
+                    </ul>
+                    <p class="support-footnote">
+                        This demo model is not a crisis service and cannot tell
+                        whether you are safe. Only a qualified professional can.
+                    </p>
+                </div>
+
+                <!-- Model confidence -->
+                <div class="chart-container">
+                    <h3>Model confidence</h3>
+                    <p class="section-lede" id="confidenceNote"></p>
+                    <div class="progress-bars" id="scoreBars">
+                        <div class="bar-group">
+                            <span class="bar-label">Low pattern</span>
+                            <div class="progress-bg"><div id="probLow" class="progress-fill fill-low" style="width:0%"></div></div>
+                        </div>
+                        <div class="bar-group">
+                            <span class="bar-label">Medium pattern</span>
+                            <div class="progress-bg"><div id="probMed" class="progress-fill fill-med" style="width:0%"></div></div>
+                        </div>
+                        <div class="bar-group">
+                            <span class="bar-label">High pattern</span>
+                            <div class="progress-bg"><div id="probHigh" class="progress-fill fill-high" style="width:0%"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Which branch drove the result -->
+                <div class="chart-container branch-container">
+                    <h3>Which branch drove this?</h3>
+                    <p class="section-lede">
+                        The final score is <strong>70% numeric branch</strong> and
+                        <strong>30% text branch</strong>. The two are trained
+                        separately and often disagree — that disagreement is much
+                        of why this model is wrong so often.
+                    </p>
+                    <div class="branch-grid" id="branchGrid"></div>
+                    <p class="branch-note" id="branchNote"></p>
+                </div>
+
+                <!-- Explanation -->
+                <div class="explanations-container">
+                    <h3>What influenced this demo result?</h3>
+                    <p class="section-lede">
+                        Each of your entries was swapped for a typical value and the
+                        change in this result was measured. These are signals from
+                        this demonstration model only — they are not clinical
+                        evidence and say nothing about your actual wellbeing.
+                    </p>
+                    <ul id="featureImportance" class="influence-list"></ul>
+                </div>
+
+                <!-- Recommendations -->
+                <div class="recommendations-container">
+                    <h3>General wellbeing suggestions</h3>
+                    <p class="section-lede">
+                        Optional, general, and not a treatment plan.
+                    </p>
+                    <ul id="recommendationsList" class="recommendations-list"></ul>
+                </div>
+
+                <div class="result-actions">
+                    <button type="button" class="btn-secondary" id="resetBtn">
+                        Try another set of values
+                    </button>
+                </div>
+            </section>
+
+            <!-- ========================= ERROR STATE ========================= -->
+            <div id="errorPanel" class="error-panel" hidden role="alert">
+                <h3 id="errorTitle">Something went wrong</h3>
+                <p id="errorMessage" class="error-message"></p>
+                <ul id="errorDetails" class="error-details"></ul>
+                <button type="button" class="btn-secondary" id="retryBtn">Try again</button>
+            </div>
+
+        </div>
+
+        <!-- ====== PRIVACY + LIMITATIONS, collapsed by default ====== -->
+        <!-- Collapsed so the page leads with the tool, not with legal text.
+             Every word is still here, one click away, and it prints open. -->
+        <details class="disclosure">
+            <summary class="disclosure-summary">
+                <span class="disclosure-title">Privacy &amp; known limitations</span>
+                <span class="disclosure-sub">What happens to what you type, and what this model cannot do</span>
+            </summary>
+            <div class="disclosure-body">
+                <h3 class="disclosure-h3">What happens to what you type</h3>
+                <ul class="privacy-list">
+                    <li><strong>What is submitted:</strong> the five numeric values and your reflection text, to this app's own <code>/predict</code> endpoint.</li>
+                    <li><strong>Storage:</strong> none. Values are read into memory to compute a result and then discarded. This app has no database and writes no submissions to disk.</li>
+                    <li><strong>Logging:</strong> your reflection text is never written to console or application logs. Error logs record only the error type and the route.</li>
+                    <li><strong>Third parties:</strong> nothing is sent anywhere. There is no analytics, tracking, or external API call in this project.</li>
+                    <li><strong>Retention:</strong> nothing to retain. Close the tab and it is gone.</li>
+                </ul>
+                <p class="privacy-footnote">
+                    Read the code and check for yourself: validation lives in
+                    <code>validation.py</code>, the model is loaded from
+                    <code>models/</code>, and nothing writes your input anywhere.
+                </p>
+
+                <h3 class="disclosure-h3">Known limitations</h3>
+                <ul class="limits-list">
+                    <li>The training data is <strong>synthetic</strong> — generated by a random script, not collected from students.</li>
+                    <li>Held-out accuracy on that synthetic data is roughly <strong>63%</strong>. The model is wrong about one classification in three.</li>
+                    <li>The numeric branch scores <strong>96%</strong> on the rows it trained on but <strong>63%</strong> on held-out rows. A large share of the training score was memorisation, not skill.</li>
+                    <li>It has never been validated against real mental-health outcomes, and no such validation exists for it.</li>
+                    <li>The text branch is keyword-based pattern matching, not comprehension. It does not understand what you wrote.</li>
+                    <li>It cannot detect self-harm, crisis, or any clinical condition, and it must not be used to try.</li>
+                </ul>
+            </div>
+        </details>
+
+        <footer class="footer">
+            <p>
+                Educational ML demonstration. Not a medical device, not a
+                diagnostic tool, and not a substitute for professional care.
+            </p>
+        </footer>
+
+    </main>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+# This directory contains trained model artefacts and metrics.
+# Generate with: python -m training.train_model

@@ -1,0 +1,2 @@
+# This directory contains generated synthetic dataset files.
+# Generate with: python -m training.make_dataset

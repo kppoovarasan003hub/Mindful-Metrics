@@ -1,0 +1,28 @@
+# Pinned to the versions this project was built and tested against
+# (Python 3.12.10, Windows). Verified by a full `pytest` run.
+#
+# Upper bounds are set so a future breaking major release cannot silently
+# change numerical results. Re-test before relaxing any of them.
+#
+# pandas was dropped: the original implementation used a DataFrame for the
+# five numeric columns, but the inference path now uses plain numpy arrays
+# and the CSV loader uses the stdlib `csv` module. Nothing imports pandas.
+
+flask==3.1.3
+flask-cors==6.0.5
+scikit-learn==1.9.0
+numpy==2.5.2
+joblib==1.6.0
+
+# --- Testing ---
+pytest==9.1.1
+
+# --- transitive, pinned for reproducibility ---
+scipy>=1.14,<2.0
+click>=8.1,<9.0
+itsdangerous>=2.2,<3.0
+Jinja2>=3.1,<4.0
+MarkupSafe>=2.1,<4.0
+Werkzeug>=3.1,<4.0
+blinker>=1.9,<2.0
+tzdata>=2024.1
